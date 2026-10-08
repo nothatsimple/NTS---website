@@ -302,65 +302,35 @@
     </footer>
   </div>
 
+  <script>
+    /*
+      IMPORTANT:
+      This demo records the submission only in the browser.
+      To actually collect leads, connect this form to a service/backend
+      such as Formspree, Brevo, Google Forms, or your own API.
+    */
+    const form = document.getElementById('earlyAccessForm');
+    const success = document.getElementById('success');
 
-<script>
-  const form = document.getElementById('earlyAccessForm');
-  const success = document.getElementById('success');
-  const submitButton = form.querySelector('button[type="submit"]');
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
 
-  form.addEventListener('submit', async function (e) {
-    e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
 
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim();
+      if (!name || !email) return;
 
-    if (!name || !email) return;
-
-    submitButton.disabled = true;
-    submitButton.textContent = 'SENDING...';
-
-    try {
-      const response = await fetch(
-        'https://formspree.io/f/xvkzawja',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ name, email })
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Submission failed');
-      }
+      const leads = JSON.parse(localStorage.getItem('nts_leads') || '[]');
+      leads.push({
+        name,
+        email,
+        submittedAt: new Date().toISOString()
+      });
+      localStorage.setItem('nts_leads', JSON.stringify(leads));
 
       form.querySelector('.form-row').style.display = 'none';
-      form.querySelector('.fine').style.display = 'none';
-      success.textContent =
-        "You're on the list. We'll let you know when NTS goes live.";
       success.style.display = 'block';
-
-    } catch (error) {
-      let errorMessage = document.getElementById('formError');
-
-      if (!errorMessage) {
-        errorMessage = document.createElement('div');
-        errorMessage.id = 'formError';
-        errorMessage.style.cssText =
-          'color:#ff8a80;font-size:12px;margin-top:12px;';
-        form.appendChild(errorMessage);
-      }
-
-      errorMessage.textContent =
-        'Unable to submit right now. Please try again.';
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = 'JOIN';
-    }
-  });
-</script>
-
+    });
+  </script>
 </body>
 </html>
